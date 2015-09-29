@@ -16,7 +16,8 @@ data segment
     game_over_message db "FIM DE JOGO", 13, 10, "$"    
     game_start_message db "JOGO DA VELHA (TIC TAC TOE) by Roberto Luiz Debarba", 13, 10, "$"
     player_message db "PLAYER $"   
-    win_message db " WIN!$"
+    win_message db " WIN!$"   
+    type_message db "TYPE A POSITION: $"
 ends
 
 stack segment
@@ -38,17 +39,31 @@ start:
     ; game start   
     call    set_game_pointer    
             
-            
+main_loop:  
+    call    clear_screen   
+    
     lea     dx, game_start_message 
     call    print
-              
-main_loop:                                     
+    
+    lea     dx, new_line
+    call    print                      
+    
     lea     dx, player_message
     call    print
     lea     dx, player
     call    print  
+    
     lea     dx, new_line
-    call    print                      
+    call    print    
+    
+    lea     dx, game_draw
+    call    print    
+    
+    lea     dx, new_line
+    call    print    
+    
+    lea     dx, type_message    
+    call    print            
                         
     ; read draw position                   
     call    read_keyboard
@@ -59,8 +74,7 @@ main_loop:
     mov     bl, al                                  
                                   
     call    update_draw                                    
-
-    call    print_game                                                            
+                                                          
     call    check  
                        
     ; check if game ends                   
@@ -261,7 +275,21 @@ check_diagonal:
     ret  
            
 
-game_over:   
+game_over:        
+    call    clear_screen   
+    
+    lea     dx, game_start_message 
+    call    print
+    
+    lea     dx, new_line
+    call    print                          
+    
+    lea     dx, game_draw
+    call    print    
+    
+    lea     dx, new_line
+    call    print
+
     lea     dx, game_over_message
     call    print  
     
@@ -310,19 +338,19 @@ print:      ; print dx content
     mov     ah, 9
     int     21h   
     
+    ret 
+    
+
+clear_screen:       ; get and set video mode
+    mov     ah, 0fh
+    int     10h   
+    
+    mov     ah, 0
+    int     10h
+    
     ret
        
-       
-print_game: ; print game draw
-    lea     dx, new_line
-    call    print
     
-    lea     dx, game_draw
-    call    print
-    
-    ret
-    
-   
 read_keyboard:  ; read keybord and return content in ah
     mov     ah, 1       
     int     21h  
